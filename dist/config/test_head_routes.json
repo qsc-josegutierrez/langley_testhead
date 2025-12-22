@@ -1,0 +1,319 @@
+{
+  "device_info": {
+    "name": "T008 HDIO Audio Switch Matrix",
+    "dio_module": "USB-DIO-48-RoHS",
+    "description": "Audio routing matrix for signal generator and analyzer connections"
+  },
+  "command_format": {
+    "description": "Commands format: 0<PORT><BIT>,<VALUE> where PORT=A-C, BIT=0-7, VALUE=0|1",
+    "separator": ";",
+    "port_mapping": {
+      "A": "Port A (DIO 0-7)",
+      "B": "Port B (DIO 8-15)",
+      "C": "Port C (DIO 16-23)"
+    }
+  },
+  "routes": [
+    {
+      "path_id": 1,
+      "path_name": "Reset",
+      "description": "Reset all relays to default state",
+      "signal_route": "Reset",
+      "command": "0",
+      "dio_commands": []
+    },
+    {
+      "path_id": 2,
+      "path_name": "Balanced Analyzer",
+      "description": "Route balanced signal to analyzer",
+      "signal_route": "Balanced Analyzer",
+      "command": "0A2,0",
+      "dio_commands": [
+        {"port": "A", "bit": 2, "value": 0}
+      ]
+    },
+    {
+      "path_id": 3,
+      "path_name": "Unbalanced Analyzer",
+      "description": "Route unbalanced signal to analyzer",
+      "signal_route": "Unbalanced Analyzer",
+      "command": "0A2,1",
+      "dio_commands": [
+        {"port": "A", "bit": 2, "value": 1}
+      ]
+    },
+    {
+      "path_id": 4,
+      "path_name": "Balanced Generator",
+      "description": "Route balanced signal from generator",
+      "signal_route": "Balanced Generator",
+      "command": "0A0,0",
+      "dio_commands": [
+        {"port": "A", "bit": 0, "value": 0}
+      ]
+    },
+    {
+      "path_id": 5,
+      "path_name": "Unbalanced Generator",
+      "description": "Route unbalanced signal from generator",
+      "signal_route": "Unbalanced Generator",
+      "command": "0A0,1",
+      "dio_commands": [
+        {"port": "A", "bit": 0, "value": 1}
+      ]
+    },
+    {
+      "path_id": 6,
+      "path_name": "Generator 1",
+      "description": "Enable generator output 1",
+      "signal_route": "Generator 1",
+      "command": "0B2,1",
+      "dio_commands": [
+        {"port": "B", "bit": 2, "value": 1}
+      ]
+    },
+    {
+      "path_id": 7,
+      "path_name": "Generator 2",
+      "description": "Enable generator outputs 1-2",
+      "signal_route": "Generator 2",
+      "command": "0B2,1;0B3,1",
+      "dio_commands": [
+        {"port": "B", "bit": 2, "value": 1},
+        {"port": "B", "bit": 3, "value": 1}
+      ]
+    },
+    {
+      "path_id": 8,
+      "path_name": "Generator 3",
+      "description": "Enable generator outputs 1-3",
+      "signal_route": "Generator 3",
+      "command": "0B2,1;0B3,1;0B4,1",
+      "dio_commands": [
+        {"port": "B", "bit": 2, "value": 1},
+        {"port": "B", "bit": 3, "value": 1},
+        {"port": "B", "bit": 4, "value": 1}
+      ]
+    },
+    {
+      "path_id": 9,
+      "path_name": "Generator 4",
+      "description": "Enable generator outputs 1-4",
+      "signal_route": "Generator 4",
+      "command": "0B2,1;0B3,1;0B4,1;0B5,1",
+      "dio_commands": [
+        {"port": "B", "bit": 2, "value": 1},
+        {"port": "B", "bit": 3, "value": 1},
+        {"port": "B", "bit": 4, "value": 1},
+        {"port": "B", "bit": 5, "value": 1}
+      ]
+    },
+    {
+      "path_id": 10,
+      "path_name": "Generator 5",
+      "description": "Enable generator outputs 1-5",
+      "signal_route": "Generator 5",
+      "command": "0B2,1;0B3,1;0B4,1;0B5,1;0B6,1",
+      "dio_commands": [
+        {"port": "B", "bit": 2, "value": 1},
+        {"port": "B", "bit": 3, "value": 1},
+        {"port": "B", "bit": 4, "value": 1},
+        {"port": "B", "bit": 5, "value": 1},
+        {"port": "B", "bit": 6, "value": 1}
+      ]
+    },
+    {
+      "path_id": 11,
+      "path_name": "Generator 6",
+      "description": "Enable generator outputs 1-6",
+      "signal_route": "Generator 6",
+      "command": "0B2,1;0B3,1;0B4,1;0B5,1;0B6,1;0B7,1",
+      "dio_commands": [
+        {"port": "B", "bit": 2, "value": 1},
+        {"port": "B", "bit": 3, "value": 1},
+        {"port": "B", "bit": 4, "value": 1},
+        {"port": "B", "bit": 5, "value": 1},
+        {"port": "B", "bit": 6, "value": 1},
+        {"port": "B", "bit": 7, "value": 1}
+      ]
+    },
+    {
+      "path_id": 12,
+      "path_name": "Generator 7",
+      "description": "Enable generator output 7",
+      "signal_route": "Generator 7",
+      "command": "0C0,0;0C1,0",
+      "dio_commands": [
+        {"port": "C", "bit": 0, "value": 0},
+        {"port": "C", "bit": 1, "value": 0}
+      ]
+    },
+    {
+      "path_id": 13,
+      "path_name": "Generator 8",
+      "description": "Enable generator output 8",
+      "signal_route": "Generator 8",
+      "command": "0C1,1",
+      "dio_commands": [
+        {"port": "C", "bit": 1, "value": 1}
+      ]
+    },
+    {
+      "path_id": 14,
+      "path_name": "Generator 9",
+      "description": "Enable generator output 9",
+      "signal_route": "Generator 9",
+      "command": "0C1,1;0C3,1",
+      "dio_commands": [
+        {"port": "C", "bit": 1, "value": 1},
+        {"port": "C", "bit": 3, "value": 1}
+      ]
+    },
+    {
+      "path_id": 15,
+      "path_name": "Analyzer 1",
+      "description": "Route to analyzer channel 1",
+      "signal_route": "Analyzer 1",
+      "command": "0C6,1;0C7,1",
+      "dio_commands": [
+        {"port": "C", "bit": 6, "value": 1},
+        {"port": "C", "bit": 7, "value": 1}
+      ]
+    },
+    {
+      "path_id": 16,
+      "path_name": "Analyzer 2",
+      "description": "Route to analyzer channel 2",
+      "signal_route": "Analyzer 2",
+      "command": "0C6,1",
+      "dio_commands": [
+        {"port": "C", "bit": 6, "value": 1}
+      ]
+    },
+    {
+      "path_id": 17,
+      "path_name": "Analyzer 3",
+      "description": "Route to analyzer channel 3",
+      "signal_route": "Analyzer 3",
+      "command": "0C4,0;0C5,0;0C6,0",
+      "dio_commands": [
+        {"port": "C", "bit": 4, "value": 0},
+        {"port": "C", "bit": 5, "value": 0},
+        {"port": "C", "bit": 6, "value": 0}
+      ]
+    },
+    {
+      "path_id": 18,
+      "path_name": "Analyzer 4",
+      "description": "Route to analyzer channel 4",
+      "signal_route": "Analyzer 4",
+      "command": "0C4,1;0C5,1",
+      "dio_commands": [
+        {"port": "C", "bit": 4, "value": 1},
+        {"port": "C", "bit": 5, "value": 1}
+      ]
+    },
+    {
+      "path_id": 19,
+      "path_name": "Analyzer 5",
+      "description": "Route to analyzer channel 5",
+      "signal_route": "Analyzer 5",
+      "command": "0C2,1;0C5,1",
+      "dio_commands": [
+        {"port": "C", "bit": 2, "value": 1},
+        {"port": "C", "bit": 5, "value": 1}
+      ]
+    },
+    {
+      "path_id": 20,
+      "path_name": "Analyzer 6",
+      "description": "Route to analyzer channel 6",
+      "signal_route": "Analyzer 6",
+      "command": "0C0,1;0C3,1;0C5,1",
+      "dio_commands": [
+        {"port": "C", "bit": 0, "value": 1},
+        {"port": "C", "bit": 3, "value": 1},
+        {"port": "C", "bit": 5, "value": 1}
+      ]
+    },
+    {
+      "path_id": 21,
+      "path_name": "PP Hot",
+      "description": "Push-pull hot configuration",
+      "signal_route": "PP Hot",
+      "command": "0A1,1;0A3,1;0A4,1;0A6,1",
+      "dio_commands": [
+        {"port": "A", "bit": 1, "value": 1},
+        {"port": "A", "bit": 3, "value": 1},
+        {"port": "A", "bit": 4, "value": 1},
+        {"port": "A", "bit": 6, "value": 1}
+      ]
+    },
+    {
+      "path_id": 22,
+      "path_name": "Load Hot",
+      "description": "Load hot configuration",
+      "signal_route": "Load Hot",
+      "command": "0B0,1",
+      "dio_commands": [
+        {"port": "B", "bit": 0, "value": 1}
+      ]
+    },
+    {
+      "path_id": 23,
+      "path_name": "PP Cold",
+      "description": "Push-pull cold configuration",
+      "signal_route": "PP Cold",
+      "command": "0A1,1;0A3,1;0A5,1;0A7,1",
+      "dio_commands": [
+        {"port": "A", "bit": 1, "value": 1},
+        {"port": "A", "bit": 3, "value": 1},
+        {"port": "A", "bit": 5, "value": 1},
+        {"port": "A", "bit": 7, "value": 1}
+      ]
+    },
+    {
+      "path_id": 24,
+      "path_name": "Load Cold",
+      "description": "Load cold configuration",
+      "signal_route": "Load Cold",
+      "command": "0B1,1",
+      "dio_commands": [
+        {"port": "B", "bit": 1, "value": 1}
+      ]
+    },
+    {
+      "path_id": 25,
+      "path_name": "CMRR Baseline",
+      "description": "Common mode rejection ratio baseline measurement",
+      "signal_route": "CMRR Baseline",
+      "command": "0A2,0",
+      "dio_commands": [
+        {"port": "A", "bit": 2, "value": 0}
+      ]
+    },
+    {
+      "path_id": 26,
+      "path_name": "CMRR",
+      "description": "Common mode rejection ratio measurement",
+      "signal_route": "CMRR",
+      "command": "0A0,1;0A3,1;0A4,1;0A7,1",
+      "dio_commands": [
+        {"port": "A", "bit": 0, "value": 1},
+        {"port": "A", "bit": 3, "value": 1},
+        {"port": "A", "bit": 4, "value": 1},
+        {"port": "A", "bit": 7, "value": 1}
+      ]
+    },
+    {
+      "path_id": 27,
+      "path_name": "EIN",
+      "description": "Equivalent input noise measurement",
+      "signal_route": "EIN",
+      "command": "0A3,1",
+      "dio_commands": [
+        {"port": "A", "bit": 3, "value": 1}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+================================================================================
+                    GUI UPDATES - DECEMBER 19, 2025
+================================================================================
+
+CHANGES IMPLEMENTED
+-------------------
+
+✅ 1. Platform File Type Filter
+   - Dropdown now has: ALL, JSON, EXCEL
+   - Selecting JSON shows only .json files in Platform dropdown
+   - Selecting EXCEL shows only .xlsx files in Platform dropdown
+   - Selecting ALL shows everything
+   - Default: ALL
+
+✅ 2. Sheet Filtering
+   - Rev History, DIO_List, and Reference* sheets are automatically excluded
+   - Only Model_* and other relevant sheets appear in Lookup Tables dropdown
+   - System sheets are hidden from user selection
+
+✅ 3. All Columns Displayed
+   - Table now shows ALL columns from Excel/JSON:
+     * ITEM
+     * TEST_DESC
+     * PathName
+     * AP CONFIGURE OUT
+     * AP CONFIGURE IN
+     * PATCH BAY CONFIGURE OUT
+     * PATCH BAY CONFIGURE IN
+     * SwitchDriverCommand
+     * Ctrl Line (For Reference)
+     * Diagram
+     * ... and any other columns present
+
+✅ 4. Auto-Populate DIO Command
+   - When you SINGLE-CLICK any row in the table
+   - The SwitchDriverCommand value automatically fills the "DIO Command" field
+   - You can then edit it manually if needed
+   - Or just leave it and click "Execute Command"
+
+✅ 5. Double-Click Execution
+   - Double-click on any row (anywhere in the row)
+   - Reads PathName and SwitchDriverCommand from that row
+   - Executes the command immediately on hardware
+   - Shows success/failure message
+
+✅ 6. Case-Insensitive Column Detection
+   - Works with "PathName", "pathname", or "PATHNAME"
+   - Works with "SwitchDriverCommand", "switchdrivercommand", etc.
+   - Handles variations in Excel column naming
+
+✅ 7. Multiple Config File Support
+   - All files in config/ folder are loaded:
+     * Amplifier_Testhead Switch Path Configuration
+     * Burn In Switch Path Configuration
+     * Environmental_Testhead Switch Path Configuration
+     * Everest_Testhead Switch Path Configuration
+     * Langley_Testhead Switch Path Configuration
+     * PI_Testhead Switch Path Configuration
+   - Both .xlsx and .json versions available
+
+================================================================================
+                          HOW TO USE
+================================================================================
+
+TYPICAL WORKFLOW NOW:
+---------------------
+
+1. START GUI:
+   > python testhead_gui_simple.py
+   OR
+   > testhead_gui.exe
+
+2. SELECT FILE TYPE (Optional):
+   - Click "Platform File Type" dropdown
+   - Choose: ALL, JSON, or EXCEL
+   - Platform dropdown filters automatically
+
+3. SELECT PLATFORM:
+   - Click "Platform" dropdown
+   - Choose your testhead config (e.g., "Amplifier_Testhead...")
+   - Lookup Tables dropdown auto-populates with Model_* sheets
+
+4. SELECT MODEL:
+   - Click "Lookup Tables" dropdown
+   - Choose model sheet (e.g., "Model_Common", "Model_Variac")
+   - Table shows all commands with ALL columns visible
+
+5. SELECT DIO:
+   - Click "DIO Name" dropdown
+   - Choose your board (e.g., "TestHead")
+   - Model and Hex Address auto-fill
+
+6. EXECUTE COMMANDS:
+   
+   Method A - Double-Click:
+   - Double-click any row in the table
+   - Command executes immediately
+   - Success message appears
+   
+   Method B - Select and Execute:
+   - Single-click a row (SwitchDriverCommand fills DIO Command field)
+   - Click "Execute Command" button
+   - Command executes
+   
+   Method C - Manual:
+   - Type command in DIO Command field
+   - Click "Execute Command" button
+
+7. SWITCH MODELS:
+   - Just select different Lookup Table
+   - Table updates with that model's commands
+   - Execute commands for that model
+
+================================================================================
+                        WHAT'S DIFFERENT
+================================================================================
+
+BEFORE:
+- Had to manually filter file types
+- Rev History and Reference sheets cluttered the list
+- Only PathName column was clickable
+- SwitchDriverCommand wasn't visible until after selection
+- Had to know exact column names
+
+AFTER:
+- File type filter dropdown (ALL/JSON/EXCEL)
+- Clean Lookup Tables list (only Model_* sheets)
+- Click ANY part of row to select, double-click to execute
+- SwitchDriverCommand visible in table AND auto-populates on selection
+- Works with any column name variation
+
+================================================================================
+                         EXAMPLES
+================================================================================
+
+Example 1: Execute "Initialize Testhead"
+-----------------------------------------
+1. Select Platform: "Amplifier_Testhead Switch Path Configuration.xlsx"
+2. Select Lookup Table: "Model_Common"
+3. Select DIO: "TestHead"
+4. Find row: "Initialize Testhead, Clear ALL"
+5. Double-click that row
+6. Done! Command executed.
+
+Example 2: Browse Commands for Different Model
+-----------------------------------------------
+1. Platform already selected
+2. Change Lookup Table to: "Model_Variac"
+3. Table shows Variac-specific commands
+4. Browse through rows
+5. Single-click to see SwitchDriverCommand
+6. Double-click to execute
+
+Example 3: Filter to JSON Files Only
+-------------------------------------
+1. Change Platform File Type to: "JSON"
+2. Platform dropdown now shows only .json files
+3. Select a JSON platform
+4. Works same as Excel files
+
+Example 4: Manual Command Test
+-------------------------------
+1. Select any row (auto-fills DIO Command)
+2. Edit the command in DIO Command field
+3. Click "Execute Command" (not double-click)
+4. Tests your modified command
+
+Example 5: View All Command Details
+------------------------------------
+1. Load any platform and model
+2. Scroll right in table to see:
+   - AP CONFIGURE OUT
+   - AP CONFIGURE IN
+   - PATCH BAY CONFIGURE OUT
+   - PATCH BAY CONFIGURE IN
+   - Ctrl Line (For Reference)
+   - Diagram
+3. All columns visible for reference
+
+================================================================================
+                      COLUMN REFERENCE
+================================================================================
+
+ITEM                     : Item number or identifier
+TEST_DESC                : Description of the test
+PathName                 : Command name (used for execution)
+AP CONFIGURE OUT         : Audio Precision output configuration
+AP CONFIGURE IN          : Audio Precision input configuration
+PATCH BAY CONFIGURE OUT  : Patch bay output routing
+PATCH BAY CONFIGURE IN   : Patch bay input routing
+SwitchDriverCommand      : Actual DIO command string (e.g., "0B4,1;0B5,1")
+Ctrl Line (For Reference): Control line numbers for reference
+Diagram                  : Diagram reference
+
+================================================================================
+                    FILES MODIFIED
+================================================================================
+
+testhead_gui_simple.py  - Main GUI with all updates
+testhead_gui.py         - Copy of working version
+GUI_USER_GUIDE.txt      - This file with instructions
+
+================================================================================
+                      KEYBOARD TIPS
+================================================================================
+
+In Table:
+- Up/Down arrows: Navigate rows
+- Home/End: First/last row
+- Page Up/Down: Scroll by page
+- Single-click: Select row (populates DIO Command)
+- Double-click: Execute selected command
+
+In Fields:
+- Tab: Move to next field
+- Shift+Tab: Move to previous field
+- Enter: Activate button (if button is focused)
+
+================================================================================
+                     KNOWN BEHAVIORS
+================================================================================
+
+1. When you change Platform File Type:
+   - Platform dropdown filters immediately
+   - If current selection doesn't match filter, first item is selected
+   - Lookup Tables and table update automatically
+
+2. When you select a row:
+   - DIO Command field updates
+   - Previous manual edits are lost
+   - This is intentional for safety
+
+3. When you double-click:
+   - Uses values from table at that moment
+   - Ignores any manual edits in DIO Command field
+   - This ensures what you see is what executes
+
+4. Sheet filtering:
+   - "Rev History" - excluded (tracking sheet)
+   - "DIO_List" - excluded (system configuration)
+   - "Reference*" - excluded (reference material)
+   - All other sheets appear in Lookup Tables
+
+================================================================================
+                       TROUBLESHOOTING
+================================================================================
+
+Problem: "PathName column not found"
+→ Excel column name might be different
+→ Check Excel file has "PathName" column (case-insensitive)
+
+Problem: "SwitchDriverCommand column not found"
+→ Check Excel file has this column
+→ Must contain the actual relay commands
+
+Problem: Lookup Tables is empty
+→ Check if Excel has Model_* sheets
+→ Verify sheets aren't all filtered out (not Rev History, etc.)
+
+Problem: DIO Command doesn't auto-fill on click
+→ Make sure you single-click (not double-click)
+→ Check if SwitchDriverCommand column exists in table
+
+Problem: Platform dropdown is empty
+→ Check Platform File Type filter
+→ Change to "ALL" to see everything
+→ Verify config files exist in config/ folder
+
+================================================================================

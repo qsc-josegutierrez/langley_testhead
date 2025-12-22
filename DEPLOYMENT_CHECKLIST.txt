@@ -1,0 +1,114 @@
+================================================================================
+                     DEPLOYMENT CHECKLIST
+================================================================================
+
+PRE-DEPLOYMENT (On Development PC)
+-----------------------------------
+[ ] All configuration files (.xlsx or .json) are in config\ folder
+[ ] Tested with: python testhead_control.py <args>
+[ ] Run build_exe.bat successfully
+[ ] Tested executable: dist\testhead_control.exe <args>
+[ ] Verified output shows "command_success: True"
+
+PACKAGING
+---------
+[ ] Zip or copy entire dist\ folder
+[ ] Include these files in deployment package:
+    - testhead_control.exe
+    - config\ folder with all .xlsx/.json files
+    - (Optional) drivers\ folder with AIOUSB.dll
+    - README.txt
+    - QUICK_START.txt
+
+TARGET PC REQUIREMENTS
+----------------------
+[ ] Windows 7 or later
+[ ] ACCESIO USB DIO board connected
+[ ] EEPROM board ID matches config HEXADDRESS
+[ ] AIOUSB.dll available (System32 or drivers\ folder)
+
+INSTALLATION ON TARGET PC
+--------------------------
+[ ] Copy dist\ folder to target PC (e.g., C:\TestHead\)
+[ ] Install AIOUSB.dll:
+    [ ] Option 1: Copy to C:\Windows\System32\
+    [ ] Option 2: Create drivers\ subfolder and place there
+[ ] Test connection: Run any testhead command
+[ ] Verify hardware responds correctly
+
+CONFIGURATION MANAGEMENT
+-------------------------
+[ ] Document which config file is for which testhead model
+[ ] Keep master configs in version control
+[ ] Update HEXADDRESS if board ID changes
+[ ] Test new configs before deploying
+
+ADDING NEW CONFIGURATIONS (ON DEV PC)
+--------------------------------------
+For Excel:
+[ ] Create/edit .xlsx file with DIO_List and command sheets
+[ ] Save to config\ folder
+[ ] Rebuild executable: build_exe.bat
+[ ] Test new config
+
+For JSON:
+[ ] Copy config\testhead_config_template.json
+[ ] Edit with your DIO_List and commands
+[ ] Save to config\ folder
+[ ] Rebuild executable: build_exe.bat
+[ ] Test new config
+
+ADDING NEW CONFIGURATIONS (ON TARGET PC)
+-----------------------------------------
+Without rebuilding:
+[ ] Copy new .xlsx or .json file to dist\config\ folder
+[ ] Test with: testhead_control.exe <new_config> <sheet> <dio> <path>
+
+VALIDATION TESTS
+----------------
+[ ] Test "Initialize Testhead, Clear ALL" - should reset all lines
+[ ] Test specific command - verify hardware responds
+[ ] Test with wrong config - should show clear error message
+[ ] Test with disconnected hardware - should show device not found error
+
+TROUBLESHOOTING ON TARGET PC
+-----------------------------
+If "AIOUSB.dll not found":
+[ ] Check C:\Windows\System32\AIOUSB.dll exists
+[ ] Or check drivers\AIOUSB.dll exists
+[ ] Try copying DLL to same folder as .exe
+
+If "Config file not found":
+[ ] Verify file is in config\ subfolder
+[ ] Check filename spelling (case-sensitive)
+[ ] Try using full path to config file
+
+If "Device not found":
+[ ] Check USB cable connection
+[ ] Verify device in Windows Device Manager
+[ ] Check HEXADDRESS matches board EEPROM ID
+[ ] Try different USB port
+[ ] Restart PC
+
+If "Command not found":
+[ ] Check PathName spelling in config file
+[ ] Verify sheet name is correct
+[ ] Path components are joined with ", " (comma-space)
+
+MAINTENANCE
+-----------
+[ ] Keep backup of working configurations
+[ ] Document any custom commands or modifications
+[ ] Test after Windows updates
+[ ] Periodically verify hardware connections
+
+SUPPORT CONTACTS
+----------------
+Developer: [Your name/team]
+Hardware: ACCESIO support
+Config Location: [Path to master configs]
+
+Notes:
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________

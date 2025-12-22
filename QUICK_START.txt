@@ -1,0 +1,110 @@
+================================================================================
+                    QUICK START GUIDE - TESTHEAD CONTROL
+================================================================================
+
+STEP 1: BUILD THE EXECUTABLE
+-----------------------------
+Open PowerShell or Command Prompt in this folder and run:
+
+  > build_exe.bat
+
+This will:
+  ✓ Install all Python dependencies
+  ✓ Build testhead_control.exe with PyInstaller
+  ✓ Bundle configuration files
+  ✓ Create dist\ folder with everything needed
+
+================================================================================
+
+STEP 2: TEST LOCALLY (Before Deployment)
+-----------------------------------------
+After building, test the executable:
+
+  > cd dist
+  > .\testhead_control.exe "Amplifier_Testhead Switch Path Configuration.xlsx" "Model_Common" "TestHead" "Initialize Testhead" "Clear ALL"
+
+Expected output:
+  - Loads AIOUSB.dll
+  - Finds config file
+  - Connects to DIO board
+  - Executes command
+  - Prints "command_success: True"
+
+================================================================================
+
+STEP 3: DEPLOY TO OTHER PCs
+----------------------------
+1. Copy the ENTIRE dist\ folder to target PC
+
+2. On target PC, install AIOUSB.dll:
+   Copy AIOUSB.dll to C:\Windows\System32\
+   OR create drivers\ subfolder and place it there
+
+3. Run from command line with your parameters
+
+================================================================================
+
+ADDING NEW CONFIGURATION FILES
+-------------------------------
+
+For Excel (.xlsx):
+  1. Copy your .xlsx file to config\ folder
+  2. Rebuild with build_exe.bat
+  3. Or manually copy to dist\config\ after building
+
+For JSON (.json):
+  1. See config\testhead_config_template.json for format
+  2. Create your JSON file
+  3. Copy to config\ folder
+  4. Rebuild or copy to dist\config\
+
+================================================================================
+
+COMMAND LINE EXAMPLES
+---------------------
+
+Basic usage:
+  testhead_control.exe <config_file> <sheet> <dio_name> <path1> [path2] [...]
+
+Real examples:
+  
+  # Reset testhead
+  testhead_control.exe "config.xlsx" "Model_Common" "TestHead" "Initialize Testhead" "Clear ALL"
+
+  # Configure 8 ohm load
+  testhead_control.exe "config.xlsx" "Model_Common" "TestHead" "Configure Load Relays to 8ohms"
+
+  # CMRR test mode
+  testhead_control.exe "config.xlsx" "Model_Common" "TestHead" "CMRR Test Mode ON"
+
+  # Multi-part pathname (gets joined with ", ")
+  testhead_control.exe "config.xlsx" "Model_Common" "TestHead" "Reset" "Balanced Generator" "MIC"
+  (Becomes: "Reset, Balanced Generator, MIC")
+
+================================================================================
+
+TROUBLESHOOTING
+---------------
+
+Problem: "AIOUSB.dll not found"
+  → Copy to C:\Windows\System32\ or create drivers\ folder
+
+Problem: "Config file not found"
+  → Make sure it's in config\ folder or use full path
+
+Problem: "Device not found"
+  → Check USB connection and EEPROM board ID
+
+Problem: "pandas not installed" (when running Python script)
+  → Run: pip install -r requirements.txt
+
+================================================================================
+
+NEED MORE HELP?
+---------------
+See README.txt for complete documentation
+
+Questions? Check:
+  ✓ Configuration file format
+  ✓ Switch command syntax
+  ✓ Troubleshooting section in README.txt

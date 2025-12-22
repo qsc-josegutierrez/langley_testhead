@@ -1,0 +1,14 @@
+# Python package dependencies for TestHead Control
+# Install with: pip install -r requirements.txt
+
+# Excel file reading
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# Executable building
+pyinstaller>=6.0.0
+
+# Optional: For better error messages and debugging
+colorama>=0.4.6
+
+# Note: tkinter is included with Python standard library (no install needed)

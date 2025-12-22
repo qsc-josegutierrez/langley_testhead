@@ -1,0 +1,333 @@
+================================================================================
+                    TESTHEAD CONTROL GUI - USER GUIDE
+================================================================================
+
+OVERVIEW
+--------
+The TestHead Control GUI provides a visual interface for managing and executing
+testhead switching operations. It eliminates the need for command-line usage
+and allows point-and-click operation of your testhead hardware.
+
+================================================================================
+                         LAUNCHING THE GUI
+================================================================================
+
+Option 1: Run from Python (Development)
+----------------------------------------
+> python testhead_gui_simple.py
+
+Option 2: Run Compiled Executable (Deployment)
+-----------------------------------------------
+> testhead_gui.exe
+
+================================================================================
+                      GUI LAYOUT AND FEATURES
+================================================================================
+
+LEFT PANEL - Configuration Controls
+------------------------------------
+1. Platform Selector
+   - Dropdown lists all .xlsx and .json config files in config/ folder
+   - Auto-loads when changed
+
+2. Lookup Tables
+   - Shows available sheets (Excel) or sections (JSON)
+   - Examples: Model_Common, Model_TM30, Model_TM16, etc.
+
+3. Lookup Table Filepath
+   - Displays full path to selected config file
+
+4. DIO Name
+   - Select which DIO board to control
+   - Auto-populates from DIO_List in config
+
+5. DIO Model
+   - Shows board type (Acces iO-96, iO-48, iO-16)
+   - Auto-fills based on DIO Name selection
+
+6. DIO Hex Address
+   - Shows EEPROM board ID in hex
+   - Must match hardware board ID
+
+7. DIO Command
+   - Enter manual commands here
+   - Format: "0" or "0B4,1;0B5,1" etc.
+
+8. Platform File Type
+   - Shows JSON or EXCEL
+   - Auto-detected from file extension
+
+9. Settling Time
+   - Delay between commands (milliseconds)
+   - Default: 10ms
+   - Adjustable: 0-10000ms
+
+10. Buttons
+    - "To JSON": Export config to JSON format
+    - "Execute Command": Run manual command
+    - "Reset All": Set all lines to LOW (safe state)
+
+RIGHT PANEL - Command Table
+----------------------------
+- Displays all commands from selected Lookup Table
+- Columns include: PathName, SwitchDriverCommand, and any custom columns
+- Scrollable horizontally and vertically
+- Shows row numbers in first column
+
+DOUBLE-CLICK TO EXECUTE
+- Double-click any row to execute that command
+- Sends command to hardware immediately
+- Shows success/failure message
+
+STATUS BAR
+----------
+- Bottom of window
+- Shows current operation status
+- Displays errors and confirmations
+
+================================================================================
+                       TYPICAL WORKFLOW
+================================================================================
+
+STEP 1: Select Configuration
+-----------------------------
+1. Choose Platform from dropdown (e.g., "Amplifier_Testhead Switch Path Configuration.xlsx")
+2. Choose Lookup Table (e.g., "Model_Common")
+3. Choose DIO Name (e.g., "TestHead")
+
+→ All fields auto-populate based on configuration
+
+STEP 2: View Available Commands
+--------------------------------
+- Right panel shows all commands for selected lookup table
+- Browse through list to find command you need
+- Review PathName and SwitchDriverCommand columns
+
+STEP 3: Execute Commands
+-------------------------
+Method A: Double-Click
+  - Double-click any row in command table
+  - Command executes immediately
+  - Status bar shows success/failure
+
+Method B: Manual Entry
+  - Type command in "DIO Command" field
+  - Click "Execute Command" button
+  - Useful for testing or one-off commands
+
+Method C: Reset
+  - Click "Reset All" button
+  - Sets all lines to LOW
+  - Safe initialization state
+
+STEP 4: Export Configuration (Optional)
+----------------------------------------
+- Click "To JSON" button
+- Choose save location
+- Converts Excel to JSON format if needed
+- Creates backup or alternate format
+
+================================================================================
+                        COMMON OPERATIONS
+================================================================================
+
+Initialize Testhead
+-------------------
+1. Select your platform and lookup table
+2. Double-click "Initialize Testhead, Clear ALL" command
+3. Confirms all relays are off
+
+Configure Specific Path
+-----------------------
+1. Find desired path in command table (e.g., "Configure Load Relays to 8ohms")
+2. Double-click the row
+3. Hardware switches to new configuration
+
+Test Manual Command
+-------------------
+1. Type command in DIO Command field: "0B4,1;0B5,1"
+2. Click "Execute Command"
+3. Verifies command syntax and execution
+
+Switch Between Models
+---------------------
+1. Select different Lookup Table from dropdown
+2. Table updates with model-specific commands
+3. Execute commands for that model
+
+Export to JSON
+--------------
+1. Load Excel configuration
+2. Click "To JSON"
+3. Choose filename and location
+4. Creates JSON copy for faster loading
+
+================================================================================
+                     TROUBLESHOOTING
+================================================================================
+
+GUI Won't Start
+---------------
+Error: "Config directory not found"
+→ Ensure config/ folder exists next to .exe or .py file
+→ Copy config files to correct location
+
+Error: "pandas not installed"
+→ Run: pip install pandas openpyxl
+→ Or use pre-built executable
+
+No Config Files Listed
+----------------------
+→ Check config/ folder has .xlsx or .json files
+→ Verify file extensions are correct (.xlsx, not .xls.xlsx)
+
+DIO Board Not Found
+-------------------
+Error: "Device with board ID XX not found"
+→ Check USB connection
+→ Verify EEPROM ID matches Hex Address in config
+→ Try different USB port
+→ Restart hardware
+
+Command Execution Fails
+------------------------
+Error: "PathName 'XXX' not found"
+→ Verify exact spelling of PathName
+→ Check correct Lookup Table is selected
+→ Case-sensitive matching
+
+Double-Click Doesn't Work
+--------------------------
+→ Ensure you double-click on a data row (not header)
+→ Check status bar for error messages
+→ Verify hardware is connected
+
+"To JSON" Export Fails
+----------------------
+→ Ensure you have write permission to target folder
+→ Check disk space
+→ Close any programs that might have file open
+
+================================================================================
+                     KEYBOARD SHORTCUTS
+================================================================================
+
+(Standard Windows Shortcuts)
+Ctrl+C : Copy selected text
+Ctrl+V : Paste text
+Tab    : Move between fields
+Enter  : Activate focused button
+Esc    : Cancel dialogs
+
+================================================================================
+                       ADVANCED USAGE
+================================================================================
+
+Multiple Configuration Files
+----------------------------
+- Add all your config files to config/ folder
+- Switch between them using Platform dropdown
+- No need to restart GUI
+
+Custom Settling Time
+--------------------
+- Increase if relays need more time between switches
+- Decrease for faster operation (if hardware supports it)
+- Typical range: 10-100ms
+
+Manual Command Format
+---------------------
+Single command:
+  0B4,1         → Set line 0B4 to HIGH
+
+Multiple commands:
+  0B4,1;0B5,1   → Set multiple lines HIGH
+
+Reset then set:
+  0;0B4,1       → Reset all, then set 0B4 HIGH
+
+Command without changing others (preserve):
+  Uses write_groupportbit_preserve internally
+  Other lines maintain current state
+
+================================================================================
+                       SAFETY FEATURES
+================================================================================
+
+1. Confirmation Dialogs
+   - Success/failure messages after execution
+   - Shows actual command executed
+
+2. Reset All Button
+   - Quick safe state (all lines LOW)
+   - Emergency stop capability
+
+3. Status Bar
+   - Real-time feedback
+   - Error messages displayed clearly
+
+4. Read-Only Fields
+   - Auto-populated fields are protected
+   - Prevents accidental misconfiguration
+
+================================================================================
+                    CUSTOMIZATION
+================================================================================
+
+Adding New Config Files
+-----------------------
+1. Copy .xlsx or .json file to config/ folder
+2. Restart GUI or click Platform dropdown
+3. New file appears in list
+
+Modifying Commands
+------------------
+1. Edit original Excel or JSON file
+2. Restart GUI to reload
+3. OR use "To JSON" to export modified version
+
+Creating New Lookup Tables
+---------------------------
+1. Add new sheet to Excel file (or new key in JSON)
+2. Follow same format as existing tables
+3. Appears in Lookup Tables dropdown
+
+================================================================================
+                       INTEGRATION
+================================================================================
+
+With Test Automation
+--------------------
+- GUI can run alongside command-line version
+- Use GUI for development/debugging
+- Use CLI for automated test sequences
+
+With Other Systems
+------------------
+- Export to JSON for integration with other tools
+- JSON format is universal and easily parsed
+- Can be version controlled in git
+
+With Multiple PCs
+-----------------
+- Copy entire folder to target PC
+- Config files travel with executable
+- Consistent experience across systems
+
+================================================================================
+                       SUPPORT
+================================================================================
+
+For Issues:
+- Check this guide first
+- Review README.txt for technical details
+- Verify hardware connections
+- Check Windows Device Manager for ACCESIO device
+
+For Questions:
+- Configuration format: See config file examples
+- Command syntax: See README.txt
+- Hardware setup: See DEPLOYMENT_CHECKLIST.txt
+
+Version: 1.0
+Date: December 19, 2025
