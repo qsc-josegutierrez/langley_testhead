@@ -41,7 +41,7 @@ class TestHeadGUI:
         style = ttk.Style()
         style.theme_use('default')
         
-        # Configure treeview to show alternating row colors and borders
+        # Configure treeview to show grid-like appearance
         style.configure("Treeview",
                        background="white",
                        foreground="black",
@@ -50,10 +50,10 @@ class TestHeadGUI:
                        borderwidth=1,
                        relief="solid")
         
-        # Alternating row colors
+        # Alternating row colors for grid effect
         style.map('Treeview', background=[('selected', '#0078D7')])
         
-        # Configure treeview heading style
+        # Configure treeview heading style with borders
         style.configure("Treeview.Heading",
                        background="#E0E0E0",
                        foreground="black",
