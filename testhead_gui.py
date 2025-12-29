@@ -73,6 +73,7 @@ class TestHeadGUI:
         self.current_lookup_table = None
         self.config_files = []
         self.lookup_tables = []
+        self.testhead = None  # Track testhead instance for cleanup
         
         # Get app directory for finding config files
         if getattr(sys, 'frozen', False):
@@ -570,6 +571,10 @@ class TestHeadGUI:
                         dio_pathname=pathname,
                         sheet_name=lookup_table)
             
+            # Store testhead instance for cleanup on close
+            if testhead.command_success:
+                self.testhead = testhead
+            
             if testhead.command_success:
                 self.status_var.set(f"✓ Executed: {pathname}")
                 messagebox.showinfo("Success", f"Command executed successfully:\n{pathname}\n\nCommand: {switch_command}")
@@ -631,6 +636,16 @@ class TestHeadGUI:
     def on_closing(self):
         """Handle window close event properly"""
         try:
+            # Reset all relays before closing
+            if self.testhead is not None:
+                try:
+                    self.status_var.set("Resetting all relays before closing...")
+                    self.root.update()
+                    self.testhead.reset_all_lines_low()
+                    print("All relays reset to LOW before closing")
+                except Exception as e:
+                    print(f"Warning: Failed to reset relays on close: {e}")
+            
             # Clean up any resources if needed
             self.root.quit()
             self.root.destroy()
