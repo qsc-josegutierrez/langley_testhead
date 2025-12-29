@@ -565,10 +565,10 @@ class TestHeadGUI:
             from testhead_control import Testhead_Control
             testhead = Testhead_Control()
             
-            # Run the control code
-            testhead.run(testhead_lookup_xlsx=config_path,
+            # Run the control code with mandatory parameters
+            testhead.run(config_file_name=config_path,
                         dio_name=dio_name,
-                        dio_pathname=pathname,
+                        command_name=pathname,
                         sheet_name=lookup_table)
             
             # Store testhead instance for cleanup on close
@@ -632,7 +632,7 @@ class TestHeadGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to reset lines: {str(e)}")
             self.status_var.set("Reset failed")
-    
+    # make sure relays are reset on close only on the GUI side not on the command line side
     def on_closing(self):
         """Handle window close event properly"""
         try:

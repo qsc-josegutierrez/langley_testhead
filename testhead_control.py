@@ -49,20 +49,58 @@ class Testhead_Control:
         self.dio = None
         self.device_index = None
     
-    def run(self, testhead_lookup_xlsx="", dio_name="TestHead", dio_pathname="", sheet_name="Model_Common"):
-        """Execute the testhead control sequence"""
+    def run(self, config_file_name, dio_name, command_name, sheet_name):
+        """
+        Execute the testhead control sequence.
+        
+        All parameters are MANDATORY and must be provided.
+        
+        Args:
+            config_file_name (str): Path to configuration file. Supports both Excel (.xlsx) and JSON (.json) formats.
+                                   Can be absolute path or relative to config/ directory.
+                                   Example: "Langley_Testhead Switch Path Configuration.xlsx"
+                                   Example: "config/testhead_config.json"
+            
+            dio_name (str): Name of the DIO device as defined in the DIO_List section of config file.
+                           Example: "TestHead"
+                           Example: "TestHead2"
+            
+            command_name (str): PathName/Command identifier from the lookup table to execute.
+                               Example: "Reset"
+                               Example: "Generator 1"
+                               Example: "Balanced Analyzer"
+            
+            sheet_name (str): Lookup table/sheet name containing the commands.
+                             Example: "Model_Common"
+                             Example: "Model_T002"
+                             Example: "Model_Specific"
+        
+        Returns:
+            None. Sets self.command_success to True on successful execution.
+        
+        Raises:
+            ValueError: If any required parameter is missing or empty.
+            FileNotFoundError: If config file is not found.
+            RuntimeError: If DIO device is not found or command execution fails.
+        """
+        # Validate all mandatory inputs
+        if not config_file_name:
+            raise ValueError("config_file_name is required. Must be path to Excel (.xlsx) or JSON (.json) file.")
+        if not dio_name:
+            raise ValueError("dio_name is required. Must match a NAME in the DIO_List.")
+        if not command_name:
+            raise ValueError("command_name is required. Must match a PathName in the specified sheet.")
+        if not sheet_name:
+            raise ValueError("sheet_name is required. Must be a valid lookup table/sheet name.")
+        
         self.command_success = False  # Initialize command success status
         
         # Resolve config file path - use get_config_path to search multiple locations
-        if not testhead_lookup_xlsx:
-            # Default to the standard config file if none provided
-            testhead_lookup_xlsx = "Amplifier_Testhead Switch Path Configuration.xlsx"
-        
-        testhead_lookup_xlsx = get_config_path(testhead_lookup_xlsx)
-        print(f"Using config file: {testhead_lookup_xlsx}")
+        config_file_name = get_config_path(config_file_name)
+        print(f"Using config file: {config_file_name}")
         
         # Use ConfigLoader to handle both Excel and JSON formats
-        config_loader = ConfigLoader(testhead_lookup_xlsx)
+        config_loader = ConfigLoader(config_file_name)
         
         # Load DIO List
         dio_list_df = config_loader.load_dio_list()
@@ -88,8 +126,8 @@ class Testhead_Control:
         else:
             print(f"Found {len(dio_cmdlist_df)} commands for {sheet_name}")
 
-        # Get the Switch Driver Command for the pathname
-        switch_driver_command = config_loader.get_switch_command(dio_pathname, sheet_name)
+        # Get the Switch Driver Command for the command name
+        switch_driver_command = config_loader.get_switch_command(command_name, sheet_name)
 
         # Convert to int
         device_board_id = int(dio_hexaddress, 16)
@@ -274,29 +312,30 @@ def main():
     # Accept 4+ arguments from command line: excel_file, sheet_name, dio_name, pathname_components...
     # Minimum 4 arguments: excel_file, sheet_name, dio_name, and at least one pathname component
     if len(sys.argv) < 5:
-        print("Usage: python testhead_control.py <excel_file> <sheet_name> <dio_name> <path_component> [path_component2] [...]")
-        print("Example: testhead_control.py \"file.xlsx\" \"Model_Common\" \"TestHead\" \"Reset\" \"Balanced Generator\" \"MIC\"")
+        print("Usage: python testhead_control.py <config_file> <sheet_name> <dio_name> <command_component> [command_component2] [...]")
+        print("Example: testhead_control.py \"Langley_Testhead Switch Path Configuration.xlsx\" \"Model_Common\" \"TestHead\" \"Reset\"")
+        print("Example: testhead_control.py \"testhead_config.json\" \"Model_T002\" \"TestHead\" \"Generator\" \"1\"")
         raise ValueError(f"Invalid number of arguments. Expected at least 4, got {len(sys.argv) - 1}")
     
-    testhead_lookup_xlsx = sys.argv[1]
+    config_file_name = sys.argv[1]
     sheet_name = sys.argv[2]
     dio_name = sys.argv[3]
     
-    # Join all remaining arguments as pathname components with ", " separator
-    pathname_components = sys.argv[4:]
-    dio_pathname = ", ".join(pathname_components)
+    # Join all remaining arguments as command name components with ", " separator
+    command_components = sys.argv[4:]
+    command_name = ", ".join(command_components)
     
     print("Arguments received:")
-    print(f"testhead_lookup_xlsx: {testhead_lookup_xlsx}")
+    print(f"config_file_name: {config_file_name}")
     print(f"sheet_name: {sheet_name}")
     print(f"dio_name: {dio_name}")
-    print(f"pathname_components: {pathname_components}")
-    print(f"dio_pathname (joined): {dio_pathname}")
+    print(f"command_components: {command_components}")
+    print(f"command_name (joined): {command_name}")
     # Create instance and run with the provided arguments
     testhead = Testhead_Control()
-    testhead.run(testhead_lookup_xlsx=testhead_lookup_xlsx,
+    testhead.run(config_file_name=config_file_name,
                  dio_name=dio_name,
-                 dio_pathname=dio_pathname,
+                 command_name=command_name,
                  sheet_name=sheet_name)
 
     # ************************************
