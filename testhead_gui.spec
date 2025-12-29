@@ -13,6 +13,7 @@ a = Analysis(
         ('config_loader.py', '.'),     # Explicitly include config_loader
         ('testhead_control.py', '.'),  # Explicitly include testhead_control
         ('accesio/*.py', 'accesio'),   # Include accesio module
+        # ('testhead_icon.ico', '.'),    # Include application icon (uncomment when icon exists)
     ],
     hiddenimports=['openpyxl', 'pandas', 'openpyxl.styles', 'openpyxl.cell', 'openpyxl.cell.cell'],
     hookspath=[],
@@ -47,5 +48,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,  # Add icon path here if you have one: 'icon.ico'
+    icon=None,  # Set to 'testhead_icon.ico' when icon file exists
 )

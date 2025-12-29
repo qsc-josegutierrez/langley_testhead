@@ -157,16 +157,27 @@ class ConfigLoader:
             # Always reload to ensure we have the correct sheet
             self.dio_cmdlist_df = self._read_excel_sheet(sheet_name, header_row=0)
             
-            # Check if PathName column exists
-            if 'PathName' not in self.dio_cmdlist_df.columns:
+            # Find PathName column (case-insensitive)
+            pathname_col = None
+            switchcmd_col = None
+            for col in self.dio_cmdlist_df.columns:
+                if col.upper() == 'PATHNAME':
+                    pathname_col = col
+                elif col.upper() == 'SWITCHDRIVERCOMMAND':
+                    switchcmd_col = col
+            
+            if pathname_col is None:
                 raise ValueError(f"'PathName' column not found in sheet '{sheet_name}'. Available columns: {list(self.dio_cmdlist_df.columns)}")
             
-            if pathname not in self.dio_cmdlist_df['PathName'].values:
+            if switchcmd_col is None:
+                raise ValueError(f"'SwitchDriverCommand' column not found in sheet '{sheet_name}'. Available columns: {list(self.dio_cmdlist_df.columns)}")
+            
+            if pathname not in self.dio_cmdlist_df[pathname_col].values:
                 raise ValueError(f"DIO pathname '{pathname}' not found in sheet '{sheet_name}'.")
             
             command = self.dio_cmdlist_df.loc[
-                self.dio_cmdlist_df['PathName'] == pathname, 
-                'SwitchDriverCommand'
+                self.dio_cmdlist_df[pathname_col] == pathname, 
+                switchcmd_col
             ].values[0]
             return command
             

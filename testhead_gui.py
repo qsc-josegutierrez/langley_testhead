@@ -22,6 +22,21 @@ class TestHeadGUI:
         self.root.title("TestHead Control - Set Parameters")
         self.root.geometry("1400x800")
         
+        # Set application icon
+        try:
+            if getattr(sys, 'frozen', False):
+                # Running as executable
+                icon_path = os.path.join(os.path.dirname(sys.executable), "testhead_icon.ico")
+            else:
+                # Running as script
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "testhead_icon.ico")
+            
+            if os.path.exists(icon_path):
+                self.root.iconbitmap(icon_path)
+        except Exception as e:
+            # Silently continue if icon cannot be loaded
+            pass
+        
         # Configure treeview style for grid lines
         style = ttk.Style()
         style.theme_use('default')
@@ -541,10 +556,12 @@ class TestHeadGUI:
             # Import and execute command
             from testhead_control import Testhead_Control
             testhead = Testhead_Control()
-            # we do not need to set self.stuff 
-            # run th control code
-            # testhead.run(excel, dio_name, pathname, switch_command, settling_time)
             
+            # Run the control code
+            testhead.run(testhead_lookup_xlsx=config_path,
+                        dio_name=dio_name,
+                        dio_pathname=pathname,
+                        sheet_name=lookup_table)
             
             if testhead.command_success:
                 self.status_var.set(f"✓ Executed: {pathname}")
