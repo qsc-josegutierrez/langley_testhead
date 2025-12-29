@@ -39,24 +39,31 @@ class TestHeadGUI:
         
         # Configure treeview style for grid lines
         style = ttk.Style()
-        style.theme_use('default')
+        
+        # Try to use a consistent theme across all Windows versions
+        try:
+            style.theme_use('clam')  # More consistent cross-platform theme
+        except:
+            style.theme_use('default')
         
         # Configure treeview to show grid-like appearance
         style.configure("Treeview",
-                       background="white",
-                       foreground="black",
+                       background="#FFFFFF",
+                       foreground="#000000",
                        rowheight=25,
-                       fieldbackground="white",
+                       fieldbackground="#FFFFFF",
                        borderwidth=1,
                        relief="solid")
         
         # Alternating row colors for grid effect
-        style.map('Treeview', background=[('selected', '#0078D7')])
+        style.map('Treeview', 
+                 background=[('selected', '#0078D7')],
+                 foreground=[('selected', '#FFFFFF')])
         
         # Configure treeview heading style with borders
         style.configure("Treeview.Heading",
-                       background="#E0E0E0",
-                       foreground="black",
+                       background="#D0D0D0",
+                       foreground="#000000",
                        relief="raised",
                        borderwidth=1)
         
@@ -426,9 +433,9 @@ class TestHeadGUI:
                     tag = 'evenrow' if idx % 2 == 0 else 'oddrow'
                     self.tree.insert('', tk.END, text=str(idx+1), values=values, tags=(tag,))
                 
-                # Configure row colors
-                self.tree.tag_configure('evenrow', background='#FFFFFF')
-                self.tree.tag_configure('oddrow', background='#F0F0F0')
+                # Configure row colors with explicit foreground
+                self.tree.tag_configure('evenrow', background='#FFFFFF', foreground='#000000')
+                self.tree.tag_configure('oddrow', background='#E8E8E8', foreground='#000000')
             
             else:
                 # JSON format
@@ -457,9 +464,9 @@ class TestHeadGUI:
                     tag = 'evenrow' if idx % 2 == 0 else 'oddrow'
                     self.tree.insert('', tk.END, text=str(idx+1), values=values, tags=(tag,))
                 
-                # Configure row colors
-                self.tree.tag_configure('evenrow', background='#FFFFFF')
-                self.tree.tag_configure('oddrow', background='#F0F0F0')
+                # Configure row colors with explicit foreground
+                self.tree.tag_configure('evenrow', background='#FFFFFF', foreground='#000000')
+                self.tree.tag_configure('oddrow', background='#E8E8E8', foreground='#000000')
             
             self.status_var.set(f"Loaded {len(cmd_list)} command(s)")
             
