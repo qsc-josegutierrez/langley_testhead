@@ -150,6 +150,78 @@ class Testhead_Control:
         # No raise exception here, print success message and set command_success to True
         self.command_success = True
         print(f"command_success: {self.command_success}")
+    
+    def run_direct_command(self, config_file_name, dio_name, switch_command):
+        """
+        Execute a switch command directly without looking it up in the config file.
+        Used for manual commands and reset operations.
+        
+        All parameters are MANDATORY and must be provided.
+        
+        Args:
+            config_file_name (str): Path to configuration file. Supports both Excel (.xlsx) and JSON (.json) formats.
+                                   Example: "Langley_Testhead Switch Path Configuration.xlsx"
+            
+            dio_name (str): Name of the DIO device as defined in the DIO_List section of config file.
+                           Example: "TestHead"
+            
+            switch_command (str): Direct switch driver command string to execute.
+                                 Example: "0" (reset all)
+                                 Example: "0A0,0" (single command)
+                                 Example: "0B2,1;0B3,1;0B4,1" (multiple commands separated by semicolon)
+        
+        Returns:
+            None. Sets self.command_success to True on successful execution.
+        
+        Raises:
+            ValueError: If any required parameter is missing or empty.
+            RuntimeError: If DIO device is not found or command execution fails.
+        """
+        # Validate all mandatory inputs
+        if not config_file_name:
+            raise ValueError("config_file_name is required. Must be path to Excel (.xlsx) or JSON (.json) file.")
+        if not dio_name:
+            raise ValueError("dio_name is required. Must match a NAME in the DIO_List.")
+        if not switch_command:
+            raise ValueError("switch_command is required. Must be a valid switch driver command.")
+        
+        self.command_success = False  # Initialize command success status
+        
+        # Resolve config file path
+        config_file_name = get_config_path(config_file_name)
+        print(f"Using config file: {config_file_name}")
+        
+        # Use ConfigLoader to handle both Excel and JSON formats
+        config_loader = ConfigLoader(config_file_name)
+        
+        # Load DIO List
+        dio_list_df = config_loader.load_dio_list()
+        
+        # Get the MODEL and HEXADDRESS for the dio_name
+        dio_model, dio_hexaddress = config_loader.get_device_info(dio_name)
+        self.dio_model = dio_model.upper()
+        
+        # Convert to int
+        device_board_id = int(dio_hexaddress, 16)
+        
+        # Initialize the DIO object with the specified model
+        self.dio = dio.AccesDIO(dio_model=self.dio_model)
+        
+        # Get the custom programmed board ID from EEPROM at address 0
+        self.device_index = self.dio.get_device_by_eeprom_byte(device_board_id)
+        
+        if self.device_index is None:
+            raise RuntimeError(f"Device with board ID {device_board_id} not found.")
+        
+        print(f"Board ID: {device_board_id} found with Device Index: {self.device_index}")
+        
+        # Process the Switch Driver Command directly
+        print(f"Processing Direct Switch Driver Command: {switch_command}")
+        self.process_switch_driver_command(switch_command)
+        
+        # Set command success to True
+        self.command_success = True
+        print(f"command_success: {self.command_success}")
 
     # ***********************************
     # Excel and Dataframe Related Functions
@@ -308,13 +380,22 @@ class Testhead_Control:
 # "C:\gitrepos\qsctestexecutive\Resources\LookupData\Amplifier_Testhead Switch Path Configuration.xlsx" "TestHead" "CMRR Test Mode ON"
 
 def main():
-    """Main entry point for command-line usage"""
-    # Accept 4+ arguments from command line: excel_file, sheet_name, dio_name, pathname_components...
-    # Minimum 4 arguments: excel_file, sheet_name, dio_name, and at least one pathname component
+    """
+    Main entry point for command-line usage.
+    Supports executing multiple commands sequentially.
+    """
+    # Accept 4+ arguments from command line: config_file, sheet_name, dio_name, command_components...
+    # Minimum 4 arguments: config_file, sheet_name, dio_name, and at least one command component
     if len(sys.argv) < 5:
         print("Usage: python testhead_control.py <config_file> <sheet_name> <dio_name> <command_component> [command_component2] [...]")
-        print("Example: testhead_control.py \"Langley_Testhead Switch Path Configuration.xlsx\" \"Model_Common\" \"TestHead\" \"Reset\"")
-        print("Example: testhead_control.py \"testhead_config.json\" \"Model_T002\" \"TestHead\" \"Generator\" \"1\"")
+        print("")
+        print("Single command examples:")
+        print("  testhead_control.py \"config.xlsx\" \"Model_Common\" \"TestHead\" \"Reset\"")
+        print("  testhead_control.py \"config.json\" \"Model_T002\" \"TestHead\" \"Generator 1\"")
+        print("")
+        print("Multiple commands (separate with '|' for multiple commands):")
+        print("  testhead_control.py \"config.xlsx\" \"Model_Common\" \"TestHead\" \"Reset|Generator 1|Analyzer 2\"")
+        print("")
         raise ValueError(f"Invalid number of arguments. Expected at least 4, got {len(sys.argv) - 1}")
     
     config_file_name = sys.argv[1]
@@ -323,20 +404,44 @@ def main():
     
     # Join all remaining arguments as command name components with ", " separator
     command_components = sys.argv[4:]
-    command_name = ", ".join(command_components)
+    full_command_string = ", ".join(command_components)
+    
+    # Check if multiple commands are requested (separated by '|')
+    if '|' in full_command_string:
+        command_names = [cmd.strip() for cmd in full_command_string.split('|')]
+        print(f"Multiple commands detected: {len(command_names)} commands")
+    else:
+        command_names = [full_command_string]
     
     print("Arguments received:")
     print(f"config_file_name: {config_file_name}")
     print(f"sheet_name: {sheet_name}")
     print(f"dio_name: {dio_name}")
     print(f"command_components: {command_components}")
-    print(f"command_name (joined): {command_name}")
-    # Create instance and run with the provided arguments
+    print(f"commands to execute: {command_names}")
+    print("")
+    
+    # Execute each command sequentially
     testhead = Testhead_Control()
-    testhead.run(config_file_name=config_file_name,
-                 dio_name=dio_name,
-                 command_name=command_name,
-                 sheet_name=sheet_name)
+    for idx, command_name in enumerate(command_names, 1):
+        print(f"--- Executing command {idx}/{len(command_names)}: {command_name} ---")
+        try:
+            testhead.run(config_file_name=config_file_name,
+                        dio_name=dio_name,
+                        command_name=command_name,
+                        sheet_name=sheet_name)
+            
+            if testhead.command_success:
+                print(f"✓ Command {idx} completed successfully")
+            else:
+                print(f"✗ Command {idx} failed")
+                break  # Stop on first failure
+        except Exception as e:
+            print(f"✗ Command {idx} failed with error: {e}")
+            break  # Stop on first error
+        print("")
+    
+    print(f"Command execution complete. Final status: {'SUCCESS' if testhead.command_success else 'FAILED'}")
 
     # ************************************
     # Example usage of Testhead_Control class and test code

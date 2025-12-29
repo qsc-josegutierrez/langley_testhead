@@ -545,7 +545,7 @@ class TestHeadGUI:
             self.status_var.set(f"Error: {str(e)}")
     
     def execute_command(self, pathname, switch_command):
-        """Execute a switch command on the hardware"""
+        """Execute a switch command on the hardware (looks up command in config)"""
         try:
             self.status_var.set(f"Executing: {pathname}...")
             self.root.update()
@@ -586,6 +586,46 @@ class TestHeadGUI:
             messagebox.showerror("Error", f"Execution error: {str(e)}")
             self.status_var.set(f"Error: {str(e)}")
     
+    def execute_direct_command(self, description, switch_command):
+        """Execute a switch command directly without config lookup (for manual commands)"""
+        try:
+            self.status_var.set(f"Executing: {description}...")
+            self.root.update()
+            
+            # Get current configuration
+            platform_file = self.platform_var.get()
+            dio_name = self.dio_name_var.get()
+            
+            if not all([platform_file, dio_name]):
+                messagebox.showwarning("Warning", "Please select platform and DIO name")
+                return
+            
+            config_path = os.path.join(self.config_dir, platform_file)
+            
+            # Import and execute command directly
+            from testhead_control import Testhead_Control
+            testhead = Testhead_Control()
+            
+            # Run direct command without config lookup
+            testhead.run_direct_command(config_file_name=config_path,
+                                       dio_name=dio_name,
+                                       switch_command=switch_command)
+            
+            # Store testhead instance for cleanup on close
+            if testhead.command_success:
+                self.testhead = testhead
+            
+            if testhead.command_success:
+                self.status_var.set(f"✓ Executed: {description}")
+                messagebox.showinfo("Success", f"Command executed successfully:\n{description}\n\nCommand: {switch_command}")
+            else:
+                self.status_var.set(f"✗ Failed: {description}")
+                messagebox.showerror("Error", "Command execution failed")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Execution error: {str(e)}")
+            self.status_var.set(f"Error: {str(e)}")
+    
     def execute_manual_command(self):
         """Execute manually entered DIO command"""
         try:
@@ -594,9 +634,9 @@ class TestHeadGUI:
                 messagebox.showwarning("Warning", "Please enter a DIO command")
                 return
             
-            # Create a temporary pathname for manual command
-            pathname = f"Manual Command: {command}"
-            self.execute_command(pathname, command)
+            # Execute command directly without config lookup
+            description = f"Manual Command: {command}"
+            self.execute_direct_command(description, command)
             
         except Exception as e:
             messagebox.showerror("Error", f"Failed to execute manual command: {str(e)}")
@@ -623,11 +663,11 @@ class TestHeadGUI:
             self.status_var.set("Resetting all lines to LOW...")
             self.root.update()
             
-            # Set DIO command to 0 and execute
+            # Set DIO command to 0 and execute directly
             self.dio_command_var.set("0")
-            pathname = "Reset All Lines"
+            description = "Reset All Lines"
             switch_command = "0"
-            self.execute_command(pathname, switch_command)
+            self.execute_direct_command(description, switch_command)
             
         except Exception as e:
             messagebox.showerror("Error", f"Failed to reset lines: {str(e)}")
