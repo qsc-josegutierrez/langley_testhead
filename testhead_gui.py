@@ -7,7 +7,6 @@ from tkinter import ttk, messagebox, filedialog
 import os
 import sys
 import json
-import argparse
 from pathlib import Path
 
 try:
@@ -75,7 +74,6 @@ class TestHeadGUI:
         self.config_files = []
         self.lookup_tables = []
         self.testhead = None  # Track testhead instance for cleanup
-        self.reset_on_close = True  # Can be disabled via command-line flag
         
         # Get app directory for finding config files
         if getattr(sys, 'frozen', False):
@@ -674,12 +672,11 @@ class TestHeadGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to reset lines: {str(e)}")
             self.status_var.set("Reset failed")
-    # make sure relays are reset on close only on the GUI side not on the command line side
     def on_closing(self):
-        """Handle window close event properly"""
+        """Handle window close event - always reset relays for safety"""
         try:
-            # Reset all relays before closing (if enabled)
-            if self.reset_on_close and self.testhead is not None:
+            # Reset all relays before closing
+            if self.testhead is not None:
                 try:
                     self.status_var.set("Resetting all relays before closing...")
                     self.root.update()
@@ -687,8 +684,6 @@ class TestHeadGUI:
                     print("All relays reset to LOW before closing")
                 except Exception as e:
                     print(f"Warning: Failed to reset relays on close: {e}")
-            elif not self.reset_on_close:
-                print("Reset on close disabled - relays will maintain current state")
             
             # Clean up any resources if needed
             self.root.quit()
@@ -753,32 +748,9 @@ class TestHeadGUI:
 
 def main():
     """Main entry point for GUI application"""
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(
-        description='TestHead Control GUI Application',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''Examples:
-  testhead_gui.exe                      # Normal mode (resets relays on close)
-  testhead_gui.exe --no-reset-on-close  # For Audio Precision (keeps relay state)
-''')
-    
-    parser.add_argument('--no-reset-on-close', 
-                       action='store_true',
-                       help='Disable automatic relay reset when closing GUI (for automation)')
-    
-    args = parser.parse_args()
-    
     try:
         root = tk.Tk()
         app = TestHeadGUI(root)
-        
-        # Apply command-line flag
-        if args.no_reset_on_close:
-            app.reset_on_close = False
-            print("*** Reset on close DISABLED - relays will maintain state after GUI closes ***")
-        else:
-            print("*** Reset on close ENABLED - relays will reset to LOW when GUI closes ***")
-        
         root.mainloop()
     except Exception as e:
         # Show error dialog if GUI fails to start

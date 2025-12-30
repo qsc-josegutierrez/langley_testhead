@@ -9,6 +9,7 @@
 6. [Usage from LabVIEW](#usage-from-labview)
 7. [Command Reference](#command-reference)
 8. [Troubleshooting](#troubleshooting)
+9. [Change Log](#change-log)
 
 ---
 
@@ -222,35 +223,33 @@ Step 5: Measure Response
   [Audio Precision measurement]
 ```
 
-### Method 2: GUI with --no-reset-on-close Flag
+### Method 2: Python API Integration
 
-If you prefer using the GUI from Audio Precision:
+For direct Python API access within Audio Precision (if supported):
 
+```python
+import sys
+sys.path.append("C:\\TestHeadControl")
+from testhead_control import Testhead_Control
+
+# Initialize and configure
+testhead = Testhead_Control()
+testhead.run(
+    config_file_name="config.xlsx",
+    dio_name="TestHead", 
+    command_name="Generator 1",
+    sheet_name="Model_T002"
+)
 ```
-Audio Precision External Program:
-  Program: C:\TestHeadControl\testhead_gui.exe
-  Arguments: --no-reset-on-close
-  
-  Wait for user to:
-    1. Select command from table
-    2. Double-click to execute
-    3. Close window
-  
-  Result: Relays STAY CONFIGURED after GUI closes
-```
-
-**⚠️ Important:**
-- Without `--no-reset-on-close`: Relays reset to 0 when GUI closes
-- With `--no-reset-on-close`: Relays maintain state (required for Audio Precision)
 
 **Advantages:**
-- Visual interface for debugging
-- Easy to verify configuration
-- No command-line syntax needed
+- Fastest execution
+- Direct integration
+- No external process overhead
 
 **Disadvantages:**
-- Slower than CLI
-- Requires user interaction (unless scripted)
+- Requires Python environment in Audio Precision
+- More complex setup
 
 ### Method 3: Compiled CLI Executable (Recommended)
 
@@ -268,6 +267,9 @@ Audio Precision External Program:
 - Single file deployment
 - Relays persist after program exits
 - Full automation support
+
+**Disadvantages:**
+- Need to rebuild executable when code changes
 
 ### Method 4: Python COM/ActiveX (Advanced)
 
@@ -414,18 +416,15 @@ If you have LabVIEW Python integration:
 ### GUI Application
 
 ```bash
-# Normal mode (resets relays on close)
 testhead_gui.exe
-
-# For Audio Precision/automation (keeps relay state)
-testhead_gui.exe --no-reset-on-close
 ```
 
-**Flags:**
-- `--no-reset-on-close` - Disables automatic relay reset when closing GUI
-  - Use this when GUI is called from Audio Precision
-  - Relays maintain their state after GUI closes
-  - Required for test automation workflows
+**Features:**
+- Visual configuration file selection
+- Browse and execute commands
+- Real-time command execution
+- Export to JSON format
+- Automatically resets all relays when GUI closes (safety feature)
 
 ### Command-Line Syntax
 
@@ -641,3 +640,136 @@ python testhead_control.py args... > testhead.log 2>&1
 - Test commands from command line first
 - Verify config file with GUI application
 - Check hardware connections and board IDs
+
+---
+
+## Change Log
+
+### Version 2.0 - December 30, 2025
+
+#### Major Refactoring
+- **Class Structure Redesign**: Separated `__init__()` from execution logic
+  - `__init__()` now only initializes state (no parameters needed)
+  - New `run()` method handles all execution logic with mandatory parameters
+  - Rationale: Enables object reuse and multiple command execution with same instance
+
+#### Parameter Changes
+- **Renamed Parameters** (for clarity):
+  - `testhead_lookup_xlsx` → `config_file_name` (now supports both .xlsx and .json)
+  - `dio_pathname` → `command_name` (more accurately describes the lookup value)
+- **Mandatory Parameters**: All parameters now required (no defaults)
+  - `config_file_name`: Path to configuration file
+  - `dio_name`: DIO device identifier from DIO_List
+  - `command_name`: Command to execute from Model sheets
+  - `sheet_name`: Which Model sheet to search
+  - Rationale: Explicit > Implicit; prevents accidental use of wrong config/device
+
+#### New Features
+- **Dual Configuration Format Support**: 
+  - Existing Excel (.xlsx) format
+  - New JSON format with identical structure
+  - Unified `ConfigLoader` class handles both automatically
+  
+- **Direct Command Execution**:
+  - New `run_direct_command()` method bypasses configuration lookup
+  - Accepts raw relay commands (e.g., "0B2,1;0B3,1") 
+  - Powers GUI "Execute Command" and "Reset All" buttons
+  - Rationale: Enables manual testing and troubleshooting without config file entries
+
+- **Multiple Command Execution**:
+  - CLI now supports pipe-separated commands: `"Reset|Generator 1|Analyzer 2"`
+  - Executes commands sequentially on same hardware instance
+  - Rationale: Reduces overhead for complex test sequences
+
+#### Bug Fixes
+- **Case-Insensitive Column Matching**:
+  - Fixed "PathName column not found" errors
+  - `ConfigLoader` now matches column names case-insensitively
+  - Handles variations: "PathName", "PATHNAME", "pathname", etc.
+  - Rationale: Excel files from different sources had inconsistent column naming
+
+- **GUI Button Execution Errors**:
+  - Fixed "Execute Command" button attempting config lookup for manual commands
+  - Fixed "Reset All" button attempting config lookup for reset command
+  - Solution: Added `run_direct_command()` for these operations
+  - Rationale: Manual commands shouldn't require config file entries
+
+#### Integration Enhancements
+- **PyInstaller Executable Compilation**:
+  - Created `testhead_gui.spec` for reproducible builds
+  - Automatic bundling of `config/` directory with executables
+  - Hidden imports properly configured for pandas/openpyxl
+  - Build command: `pyinstaller testhead_gui.spec --clean`
+
+- **Audio Precision Integration Documentation**:
+  - Three integration methods documented: CLI, GUI with flag, Python API
+  - Workflow examples for automated test sequences
+  - Relay state management patterns
+  - Error handling recommendations
+
+- **LabVIEW Integration Documentation**:
+  - System Exec VI patterns for CLI execution
+  - Python Node integration for direct API access
+  - Executable invocation with proper path handling
+  - Return code interpretation
+
+#### Validation & Input Handling
+- **Robust Error Checking**:
+  - ValueError exceptions for missing parameters
+  - Config file existence validation
+  - Device name validation against DIO_List
+  - Command name validation against Model sheets
+  - Clear error messages for troubleshooting
+
+#### Documentation
+- **Comprehensive User Guide**: Created `TESTHEAD_CONTROL_GUIDE.md`
+  - System architecture explanation with visual diagrams
+  - Business purpose and real-world examples
+  - Configuration file structure documentation
+  - Complete command reference
+  - Audio Precision integration patterns
+  - LabVIEW integration patterns
+  - Troubleshooting guide
+  - Quick start examples
+
+### Technical Debt Addressed
+- Removed implicit parameter defaults (explicit > implicit)
+- Eliminated parameter name ambiguity
+- Centralized configuration loading logic
+- Unified Excel/JSON handling
+- Separated concerns: initialization vs. execution
+- Added comprehensive input validation
+
+### Breaking Changes
+⚠️ **Version 1.x code will not work with Version 2.0**
+- All function signatures changed
+- Parameters now mandatory
+- Different parameter names
+- Must update calling code in:
+  - Audio Precision sequences
+  - LabVIEW VIs
+  - Custom scripts
+
+### Migration Guide
+**Old (v1.x):**
+```python
+testhead = Testhead_Control()
+testhead.run()  # Used defaults
+```
+
+**New (v2.0):**
+```python
+testhead = Testhead_Control()
+testhead.run(
+    config_file_name="config.xlsx",
+    dio_name="TestHead",
+    command_name="Generator 1",
+    sheet_name="Model_T002"
+)
+```
+
+### Deployment Notes
+- Recompile executables after code changes
+- Validate Audio Precision integration
+- Update AP test sequences with new parameter names
+- Update LabVIEW VIs with new command structure
